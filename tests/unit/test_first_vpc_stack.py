@@ -1,13 +1,13 @@
 import aws_cdk as core
 import aws_cdk.assertions as assertions
 
-from cdk_core_project.cdk_core_project_stack import CdkCoreProjectStack
+from core.first_vpc_stack import FirstVpcStack
 
 # example tests. To run these tests, uncomment this file along with the example
 # resource in cdk_core_project_tmp/cdk_core_project_tmp_stack.py
-def test_sqs_queue_created():
+def test_first_vpc_stack():
     app = core.App()
-    stack = CdkCoreProjectStack(app, "CdkCoreProjectStack")
+    stack = FirstVpcStack(app, "FirstVpcStack")
     template = assertions.Template.from_stack(stack)
 
 #     template.has_resource_properties("AWS::SQS::Queue", {

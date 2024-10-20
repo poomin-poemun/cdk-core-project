@@ -2,9 +2,13 @@
 import os
 
 from aws_cdk import App,Environment
-from cdk_core_project.cdk_core_project_stack import CdkCoreProjectStack
+from core.utils.configread import configread
+from core.servicetypes.first_vpc_types import FirstVpcTypes
+from core.first_vpc_stack import FirstVpcStack
+
 
 app = App()
-env = Environment(account='123456789099', region='ap-northeast-1')
-CdkCoreProjectStack(app,"CdkCoreProjectStack",env=env)
+tmpif=FirstVpcTypes(**configread("core/parameters/first_vpc_params.yaml"))
+env=Environment(region=tmpif.common.region,account=tmpif.common.account)
+FirstVpcStack(app,"FirstVpcStack",myif=tmpif,env=env)
 app.synth()

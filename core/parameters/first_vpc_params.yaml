@@ -1,0 +1,18 @@
+---
+common:
+  region: ap-northeast-1
+  account : "123456789099"
+  tags :
+    commontag1: "commontags1-value"
+    commontag2: "commontags2-value"
+firstvpc:
+  vpcs:
+    firstvpc:
+      construct_id: "firstvpc"
+      cidr_block: "10.0.0.0/16"
+      enable_dns_hostnames: True
+      enable_dns_support: True
+      instance_tenancy: "default"
+      tags:
+        vpctag1: "vpctag1-value"
+        vpctag2: "vpctag2-value"
