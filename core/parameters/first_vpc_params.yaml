@@ -7,7 +7,7 @@ common:
     commontag2: "commontags-value2"
 firstvpc:
   vpcs:
-    first-vpc:
+    first_vpc:
       construct_id: "firstvpc"
       cidr_block: "10.0.0.0/16"
       enable_dns_hostnames: True
@@ -20,14 +20,14 @@ firstvpc:
   route_tables:
     first-public-routetbl:
       construct_id: "first-public-routetbl"
-      #vpc_id: ""
+      vpc_id: "{{firstvpc.vpcs.first_vpc.vpc_id}}"
       tags:
         Name: "first-vpc-pub-routetbl"
         routetbl-pub-tag1: "routetbl-pub-value1"
         routetbl-pub-tag2: "routetbl-pub-value2"
     first-private-routetbl:
       construct_id: "first-private-routetbl"
-      #vpc_id: ""
+      vpc_id: "{{firstvpc.vpcs.first_vpc.vpc_id}}"
       tags:
         Name: "first-vpc-pri-routetbl"
         routetbl-pri-tag1: "routetbl-pri-value1"
@@ -42,12 +42,12 @@ firstvpc:
   routes:
     first-igw-rute:
       construct_id: "first-igw-rute"
-      #route_table_id: ""
-      gateway_id: "first-igw"
+      route_table_id: "{{firstvpc.route_tables.first-public-routetbl.attr_route_table_id}}"
+      gateway_id: "{{firstvpc.igws.first-igw.attr_internet_gateway_id}}"
       destination_cidr_block: "0.0.0.0/0"
   vpcgatewayattachs:
     first-vpcgatewayattach:
       construct_id: "first-vpcgatewayattach"
-      #vpc_id: ""
-      #internet_gateway_id: ""
+      vpc_id: "{{firstvpc.vpcs.first_vpc.vpc_id}}"
+      internet_gateway_id: "{{firstvpc.routes.first-igw-rute.gateway_id}}"
       #vpn_gateway_id: ""
