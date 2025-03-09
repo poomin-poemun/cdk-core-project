@@ -5,6 +5,7 @@ common:
   tags :
     commontag1: "commontags-value1"
     commontag2: "commontags-value2"
+
 firstvpc:
   vpcs:
     first_vpc:
@@ -17,6 +18,29 @@ firstvpc:
         Name: "first-vpc"
         vpctag1: "vpctag-value1"
         vpctag2: "vpctag-value2"
+
+  subnets:
+    first_pub_subnet_az1:
+      construct_id: "first_pub_subnet_az1"
+      vpc_id: "{{firstvpc.vpcs.first_vpc.vpc_id}}"
+      availability_zone: "ap-northeast-1a"
+      cidr_block: "10.0.0.0/24"
+    first_pub_subnet_az3:
+      construct_id: "first_pub_subnet_az3"
+      vpc_id: "{{firstvpc.vpcs.first_vpc.vpc_id}}"
+      availability_zone: "ap-northeast-1c"
+      cidr_block: "10.0.1.0/24"
+    first_pri_subnet_az1:
+      construct_id: "first_pri_subnet_az1"
+      vpc_id: "{{firstvpc.vpcs.first_vpc.vpc_id}}"
+      availability_zone: "ap-northeast-1a"
+      cidr_block: "10.0.2.0/24"
+    first_pri_subnet_az3:
+      construct_id: "first_pri_subnet_az3"
+      vpc_id: "{{firstvpc.vpcs.first_vpc.vpc_id}}"
+      availability_zone: "ap-northeast-1c"
+      cidr_block: "10.0.3.0/24"
+    
   route_tables:
     first-public-routetbl:
       construct_id: "first-public-routetbl"
@@ -32,6 +56,7 @@ firstvpc:
         Name: "first-vpc-pri-routetbl"
         routetbl-pri-tag1: "routetbl-pri-value1"
         routetbl-pri-tag2: "routetbl-pri-value2"
+
   igws:
     first-igw:
       construct_id: "first-igw"
@@ -39,15 +64,35 @@ firstvpc:
         Name: "first-vpc-igw"
         igwtag1: "igwtag-value1"
         igwtag2: "igwtag-value2"
+
   routes:
     first-igw-rute:
       construct_id: "first-igw-rute"
       route_table_id: "{{firstvpc.route_tables.first-public-routetbl.attr_route_table_id}}"
       gateway_id: "{{firstvpc.igws.first-igw.attr_internet_gateway_id}}"
       destination_cidr_block: "0.0.0.0/0"
+
   vpcgatewayattachs:
     first-vpcgatewayattach:
       construct_id: "first-vpcgatewayattach"
       vpc_id: "{{firstvpc.vpcs.first_vpc.vpc_id}}"
       internet_gateway_id: "{{firstvpc.routes.first-igw-rute.gateway_id}}"
       #vpn_gateway_id: ""
+
+  subnet-routes:
+    first_pub_subnet_route_az1:
+      construct_id: "first_pub_subnet_route_az1"
+      route_table_id: "{{firstvpc.route_tables.first-public-routetbl.attr_route_table_id}}"
+      subnet_id: "{{firstvpc.subnets.first_pub_subnet_az1.attr_subnet_id}}"
+    first_pub_subnet_route_az3:
+      construct_id: "first_pub_subnet_route_az3"
+      route_table_id: "{{firstvpc.route_tables.first-public-routetbl.attr_route_table_id}}"
+      subnet_id: "{{firstvpc.subnets.first_pub_subnet_az3.attr_subnet_id}}"
+    first_pri_subnet_route_az1:
+      construct_id: "first_pri_subnet_route_az1"
+      route_table_id: "{{firstvpc.route_tables.first-private-routetbl.attr_route_table_id}}"
+      subnet_id: "{{firstvpc.subnets.first_pri_subnet_az1.attr_subnet_id}}"
+    first_pri_subnet_route_az3:
+      construct_id: "first_pri_subnet_route_az3"
+      route_table_id: "{{firstvpc.route_tables.first-private-routetbl.attr_route_table_id}}"
+      subnet_id: "{{firstvpc.subnets.first_pri_subnet_az3.attr_subnet_id}}"

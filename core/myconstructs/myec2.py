@@ -4,6 +4,7 @@ from aws_cdk.aws_ec2 import (
     CfnInternetGateway,
     CfnRoute,
     CfnRouteTable,
+    CfnSubnet,
     CfnSubnetRouteTableAssociation,
     CfnVPC,
     CfnVPCGatewayAttachment,
@@ -13,6 +14,7 @@ from core.basetypes.myec2 import (
     MyInternetGatewayIF,
     MyRouteIF,
     MyRouteTableIF,
+    MySubnetIF,
     MySubnetRouteTableAssociationIF,
     MyVPCGatewayAttachmentIF,
     MyVPCIF,
@@ -47,6 +49,45 @@ class MyVpc(MyBase):
         )
         # vpc_id
         updif["vpc_id"] = rsc.attr_vpc_id
+        return rsc
+
+
+# ==============================
+# CfnSubnet
+# ==============================
+class MySubnet(MyBase):
+    def __init__(self, obj: Any, name: str):
+        super().__init__(obj, name)
+
+    def create(self, myif: dict) -> Any:
+        self.myif = myif
+        return self._subnet_(myif=MySubnetIF(**myif), updif=self.myif)
+
+    def _subnet_(self, myif: MySubnetIF, updif: dict) -> CfnSubnet:
+        tags = MyTags(myif.tags)
+        rsc = CfnSubnet(
+            self.obj,
+            myif.construct_id,
+            vpc_id=myif.vpc_id,
+            assign_ipv6_address_on_creation=myif.assign_ipv6_address_on_creation,
+            availability_zone=myif.availability_zone,
+            availability_zone_id=myif.availability_zone_id,
+            cidr_block=myif.cidr_block,
+            enable_dns64=myif.enable_dns64,
+            enable_lni_at_device_index=myif.enable_lni_at_device_index,
+            ipv4_ipam_pool_id=myif.ipv4_ipam_pool_id,
+            ipv4_netmask_length=myif.ipv4_netmask_length,
+            ipv6_cidr_block=myif.ipv6_cidr_block,
+            ipv6_ipam_pool_id=myif.ipv6_ipam_pool_id,
+            ipv6_native=myif.ipv6_native,
+            ipv6_netmask_length=myif.ipv6_netmask_length,
+            map_public_ip_on_launch=myif.map_public_ip_on_launch,
+            outpost_arn=myif.outpost_arn,
+            private_dns_name_options_on_launch=myif.private_dns_name_options_on_launch,
+            tags=tags,
+        )
+        # subnet_id
+        updif["attr_subnet_id"] = rsc.attr_subnet_id
         return rsc
 
 
