@@ -19,6 +19,7 @@ class FirstVpcStack(Stack):
     ) -> None:
         super().__init__(scope, construct_id, **kwargs)
         self.myctrl = myctrl
+        myctrl.add_common_tags(self)
         # VPC
         firstvpc = myctrl.create(MyVpc(obj=self, name="firstvpc.vpcs.first_vpc"))
 

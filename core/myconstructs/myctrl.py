@@ -1,5 +1,7 @@
 from typing import Any
 
+from aws_cdk import Stack, Tags
+
 from core.basetypes.mycommon import MyCommonIF
 from core.myconstructs.mybase import MyBase
 from core.utils.reprice import rep_rice
@@ -25,3 +27,8 @@ class MyCtrl:
             else:
                 tmp = tmp[leaf]
         return tmp
+
+    def add_common_tags(self, stack: Stack):
+        if self.common.tags is not None:
+            for key,value in self.common.tags.items():
+                Tags.of(stack).add(key=key,value=value)
