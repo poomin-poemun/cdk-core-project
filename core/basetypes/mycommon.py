@@ -1,4 +1,5 @@
-from typing import Mapping,Optional
+from typing import Mapping, Optional
+
 from pydantic import BaseModel
 
 
