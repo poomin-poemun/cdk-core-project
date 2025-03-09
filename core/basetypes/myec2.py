@@ -73,3 +73,36 @@ class MySubnetRouteTableAssociationIF(BaseModel):
     construct_id: str
     route_table_id: Optional[str] = None
     subnet_id: Optional[str] = None
+
+
+# ==============================
+# private_dns_name_options_on_launch Define START
+# ==============================
+class MyPrivateDnsNameOptionsOnLaunchIF(BaseModel):
+    EnableResourceNameDnsAAAARecord: Optional[bool] = None
+    EnableResourceNameDnsARecord: Optional[bool] = None
+    HostnameType: Optional[str] = None
+
+
+# ==============================
+# Subnet Define START
+# ==============================
+class MySubnetIF(BaseModel):
+    construct_id: str
+    vpc_id: Optional[str] = None
+    assign_ipv6_address_on_creation: Optional[bool] = None
+    availability_zone: Optional[str] = None
+    availability_zone_id: Optional[str] = None
+    cidr_block: Optional[str] = None
+    enable_dns64: Optional[bool] = None
+    enable_lni_at_device_index: Optional[int] = None
+    ipv4_ipam_pool_id: Optional[str] = None
+    ipv4_netmask_length: Optional[int] = None
+    ipv6_cidr_block: Optional[str] = None
+    ipv6_ipam_pool_id: Optional[str] = None
+    ipv6_native: Optional[bool] = None
+    ipv6_netmask_length: Optional[int] = None
+    map_public_ip_on_launch: Optional[bool] = None
+    outpost_arn: Optional[str] = None
+    private_dns_name_options_on_launch: Optional[dict] = None
+    tags: Optional[Mapping[str, str]] = None
