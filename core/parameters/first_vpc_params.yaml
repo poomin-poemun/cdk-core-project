@@ -25,21 +25,29 @@ firstvpc:
       vpc_id: "{{firstvpc.vpcs.first_vpc.vpc_id}}"
       availability_zone: "ap-northeast-1a"
       cidr_block: "10.0.0.0/24"
+      tags:
+        Name: "first_pub_subnet_az1"
     first_pub_subnet_az3:
       construct_id: "first_pub_subnet_az3"
       vpc_id: "{{firstvpc.vpcs.first_vpc.vpc_id}}"
       availability_zone: "ap-northeast-1c"
       cidr_block: "10.0.1.0/24"
+      tags:
+        Name: "first_pub_subnet_az3"
     first_pri_subnet_az1:
       construct_id: "first_pri_subnet_az1"
       vpc_id: "{{firstvpc.vpcs.first_vpc.vpc_id}}"
       availability_zone: "ap-northeast-1a"
       cidr_block: "10.0.2.0/24"
+      tags:
+        Name: "first_pri_subnet_az1"
     first_pri_subnet_az3:
       construct_id: "first_pri_subnet_az3"
       vpc_id: "{{firstvpc.vpcs.first_vpc.vpc_id}}"
       availability_zone: "ap-northeast-1c"
       cidr_block: "10.0.3.0/24"
+      tags:
+        Name: "first_pri_subnet_az3"
     
   route_tables:
     first-public-routetbl:
