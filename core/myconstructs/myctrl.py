@@ -1,3 +1,4 @@
+import sys
 from typing import Any
 
 from aws_cdk import Stack, Tags
@@ -21,11 +22,16 @@ class MyCtrl:
 
     def get_myif(self, name: str):
         tmp: Any = None
-        for leaf in name.split("."):
-            if tmp is None:
-                tmp = self.config[leaf]
-            else:
-                tmp = tmp[leaf]
+        try:
+            for leaf in name.split("."):
+                if tmp is None:
+                    tmp = self.config[leaf]
+                else:
+                    tmp = tmp[leaf]
+        except KeyError as e:
+            print(e)
+            print(f"Error not found key from yaml file check keyword:{leaf}")
+            sys.exit("error end.")
         return tmp
 
     def add_common_tags(self, stack: Stack):
