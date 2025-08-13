@@ -1,0 +1,5 @@
+---
+common: "common.yaml"
+stacks:
+  - "pwork_vpc.yaml"
+  - "apigwlambda.yaml"

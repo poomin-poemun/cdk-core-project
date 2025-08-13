@@ -1,0 +1,302 @@
+---
+apigwlambda:
+  roles:
+    apigw_account_log:
+      id: "apigw_account_log"
+      role_name: "MyApiGw_Account_Role"
+      description: "My ApiGw Account Role"
+      assume_role_policy_document:
+         "Version": "2012-10-17"
+         "Statement":
+           - "Effect": "Allow"
+             "Action": "sts:AssumeRole"
+             "Principal":
+               "Service": "apigateway.amazonaws.com"
+      managed_policy_arns:
+        - "arn:aws:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs"
+
+    apigw_test_fnc_cat:
+      id: "apigw_test_fnc_cat_role"
+      role_name: "apigw_test_fnc_cat_role"
+      description: "apigw lambda func_cat role"
+      assume_role_policy_document:
+         "Version": "2012-10-17"
+         "Statement":
+           - "Effect": "Allow"
+             "Action": "sts:AssumeRole"
+             "Principal":
+               "Service": "lambda.amazonaws.com"
+      managed_policy_arns:
+        - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+        - "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
+      #policies: なし
+
+    apigw_test_fnc_dog:
+      id: "apigw_test_fnc_dog_role"
+      role_name: "apigw_test_fnc_dog_role"
+      description: "apigw lambda func_dog role"
+      assume_role_policy_document:
+         "Version": "2012-10-17"
+         "Statement":
+           - "Effect": "Allow"
+             "Action": "sts:AssumeRole"
+             "Principal":
+               "Service": "lambda.amazonaws.com"
+      managed_policy_arns:
+        - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+        - "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
+      #policies: なし
+
+  logs:
+    apigw_test_loggrp:
+      id: "apigw_test_loggrp"
+      log_group_name: "apigw_test_loggrp"
+      retention_in_days: 1
+      tags:
+        - key: "system"
+          value: "apigw_test"
+
+  securitygrps:
+    apigw_test_fnc_cat:
+      id: "apigw_test_fnc_cat_sg"
+      group_description: "apigw_test function cat securitygroup"
+      group_name: "apigw_test_fnc_cat_sg"
+      security_group_egress:
+        - ip_protocol: "-1"
+          cidr_ip: "0.0.0.0/0"
+          description: "Allow all traffic."
+      security_group_ingress:
+        - ip_protocol: "tcp"
+          cidr_ip: "0.0.0.0/0"
+          from_port: 443
+          to_port: 443
+          description: "Allow SSH traffic." 
+      vpc_id: "{{pwork.vpcs.pworkvpc.vpc_id}}"
+      tags:
+        - key: "memo"
+          value: "Nothing in particular"
+
+    apigw_test_fnc_dog:
+      id: "apigw_test_fnc_dog_sg"
+      group_description: "apigw_test function dog securitygroup"
+      group_name: "apigw_test_fnc_dog_sg"
+      security_group_egress:
+        - ip_protocol: "-1"
+          cidr_ip: "0.0.0.0/0"
+          description: "Allow all traffic."
+      security_group_ingress:
+        - ip_protocol: "tcp"
+          cidr_ip: "0.0.0.0/0"
+          from_port: 443
+          to_port: 443
+          description: "Allow SSH traffic." 
+      vpc_id: "{{pwork.vpcs.pworkvpc.vpc_id}}"
+      tags:
+        - key: "memo"
+          value: "Nothing in particular"
+
+  accounts:
+    apigw_account:
+      id: "apigw_account"
+      cloud_watch_role_arn: "{{apigwlambda.roles.apigw_account_log.attr_arn}}"
+
+  apigws:
+    apigw_test:
+      id: "apigw_test"
+      # api_key_source_type: ""
+      # binary_media_types: ""
+      # body: ""
+      # body_s3_location: ""
+      # clone_from: ""
+      description: "apigateway lambda test"
+      #disable_execute_api_endpoint: ""
+      endpoint_configuration:
+        # ip_address_type: ""
+        types:
+          - "REGIONAL"
+        # vpc_endpoint_ids: ""
+      # fail_on_warnings: ""
+      # minimum_compression_size: 0-10485760
+      # mode: ""
+      name: "apigw_test"
+      # parameters: ""
+      # policy: ""
+      tags:
+        - key: "Vertion"
+          value: "1.0.0"
+
+  functions:
+    apigw_test_fnc_cat:
+      id: "apigw_test_fnc_cat"
+      function_name: "apigw_test_fnc_cat"
+      role: "{{apigwlambda.roles.apigw_test_fnc_cat.attr_arn}}"
+      runtime: "python3.11"
+      code:
+        zip_file: |
+          import json
+          def handler(event, context):
+              print(f"apigw_test_fnc_cat:event:{event}")
+              print(f"apigw_test_fnc_cat:context:{context}")
+              res={
+                  "statusCode": 200,
+                  "headers": {
+                      "Content-Type": "*/*"
+                  },
+                  "body": "cat"
+              }
+              return res
+      handler: "index.handler"
+      vpc_config:
+        security_group_ids:
+          - "{{apigwlambda.securitygrps.apigw_test_fnc_cat.attr_group_id}}"
+        subnet_ids:
+          - "{{pwork.subnets.pwork_pri_subnet_az1.attr_subnet_id}}"
+          - "{{pwork.subnets.pwork_pri_subnet_az3.attr_subnet_id}}"
+      reserved_concurrent_executions: 1  
+
+    apigw_test_fnc_dog:
+      id: "apigw_test_fnc_dog"
+      function_name: "apigw_test_fnc_dog"
+      role: "{{apigwlambda.roles.apigw_test_fnc_dog.attr_arn}}"
+      runtime: "python3.11"
+      code:
+        zip_file: |
+          import json
+          def handler(event, context):
+              print(f"apigw_test_fnc_dog:event:{event}")
+              print(f"apigw_test_fnc_dog:context:{context}")
+              res={
+                  "statusCode": 200,
+                  "headers": {
+                      "Content-Type": "*/*"
+                  },
+                  "body": "dog"
+              }
+              return res
+      handler: "index.handler"
+      vpc_config:
+        security_group_ids:
+          - "{{apigwlambda.securitygrps.apigw_test_fnc_dog.attr_group_id}}"
+        subnet_ids:
+          - "{{pwork.subnets.pwork_pri_subnet_az1.attr_subnet_id}}"
+          - "{{pwork.subnets.pwork_pri_subnet_az3.attr_subnet_id}}"
+      reserved_concurrent_executions: 1  
+
+  permissions:
+    apigw_test_fnc_cat_permssn:
+      id: "apigw_test_fnc_cat_permssn"
+      action: "lambda:InvokeFunction"
+      principal: "apigateway.amazonaws.com"
+      function_name: "{{apigwlambda.functions.apigw_test_fnc_cat.function_name}}"
+      #source_arn: ""
+
+    apigw_test_fnc_dog_permssn:
+      id: "apigw_test_fnc_dog_permssn"
+      action: "lambda:InvokeFunction"
+      principal: "apigateway.amazonaws.com"
+      function_name: "{{apigwlambda.functions.apigw_test_fnc_dog.function_name}}"
+      #source_arn: ""
+
+  apiresources:
+    api_test_rsc_v2:
+      id: "api_test_rsc_v2"
+      rest_api_id: "{{apigwlambda.apigws.apigw_test.attr_rest_api_id}}"
+      parent_id: "{{apigwlambda.apigws.apigw_test.attr_root_resource_id}}"
+      path_part: "v2"
+    api_test_rsc_first:
+      id: "api_test_rsc_first"
+      rest_api_id: "{{apigwlambda.apigws.apigw_test.attr_rest_api_id}}"
+      parent_id: "{{apigwlambda.apiresources.api_test_rsc_v2.attr_resource_id}}"
+      path_part: "first"
+    api_test_rsc_cat:
+      id: "api_test_rsc_cat"
+      rest_api_id: "{{apigwlambda.apigws.apigw_test.attr_rest_api_id}}"
+      parent_id: "{{apigwlambda.apiresources.api_test_rsc_first.attr_resource_id}}"
+      path_part: "cat"
+    api_test_rsc_dog:
+      id: "api_test_rsc_dog"
+      rest_api_id: "{{apigwlambda.apigws.apigw_test.attr_rest_api_id}}"
+      parent_id: "{{apigwlambda.apiresources.api_test_rsc_first.attr_resource_id}}"
+      path_part: "dog"
+
+  apimethods:
+    api_test_method_cat:
+      id: "api_test_method_cat"
+      http_method: "POST"
+      rest_api_id: "{{apigwlambda.apigws.apigw_test.attr_rest_api_id}}"
+      resource_id: "{{apigwlambda.apiresources.api_test_rsc_cat.attr_resource_id}}"
+      # api_key_required: false
+      # authorization_scopes: ""
+      authorization_type: "NONE"
+      # authorizer_id: ""
+      integration:
+        type: "AWS_PROXY"
+        # cache_key_parameters: ""
+        # cache_namespace: ""
+        # connection_id: ""
+        # connection_type: "INTERNET" #default:INTERNET
+        # content_handling: ""
+        # credentials: ""
+        integration_http_method: "POST"
+        # integration_responses:
+          # status_code: ""
+          # content_handling: ""
+          # response_parameters: ""
+          # response_templates: ""
+          # selection_pattern: ""
+        # passthrough_behavior: ""
+        # request_parameters: ""
+        # request_templates: ""
+        # timeout_in_millis: 50 -29000 ms
+        uri: "arn:aws:apigateway:{{common.region}}:lambda:path/2015-03-31/functions/arn:aws:lambda:{{common.region}}:{{common.account}}:function:{{apigwlambda.functions.apigw_test_fnc_cat.function_name}}/invocations"
+
+    api_test_method_dog:
+      id: "api_test_method_dog"
+      http_method: "GET"
+      rest_api_id: "{{apigwlambda.apigws.apigw_test.attr_rest_api_id}}"
+      resource_id: "{{apigwlambda.apiresources.api_test_rsc_dog.attr_resource_id}}"
+      # api_key_required: false
+      # authorization_scopes: ""
+      authorization_type: "NONE"
+      # authorizer_id: ""
+      integration:
+        type: "AWS_PROXY"
+        # cache_key_parameters: ""
+        # cache_namespace: ""
+        # connection_id: ""
+        # connection_type: "INTERNET" default:INTERNET
+        # content_handling: ""
+        # credentials: ""
+        #http_method: "POST"
+        integration_http_method: "POST"
+        # integration_responses:
+          # status_code: ""
+          # content_handling: ""
+          # response_parameters: ""
+          # response_templates: ""
+          # selection_pattern: ""
+        # passthrough_behavior: ""
+        # request_parameters: ""
+        # request_templates: ""
+        # timeout_in_millis: 50 -29000 ms
+        uri: "arn:aws:apigateway:{{common.region}}:lambda:path/2015-03-31/functions/arn:aws:lambda:{{common.region}}:{{common.account}}:function:{{apigwlambda.functions.apigw_test_fnc_dog.function_name}}/invocations"
+
+  apideployments:
+    api_test_deployment:
+      id: "api_test_deployment"
+      rest_api_id: "{{apigwlambda.apigws.apigw_test.attr_rest_api_id}}"
+      description: "api test stage"
+
+  apistages:
+    api_test_stage:
+      id: "api_test_stage"
+      rest_api_id: "{{apigwlambda.apigws.apigw_test.attr_rest_api_id}}"
+      access_log_setting:
+        destination_arn: "{{apigwlambda.logs.apigw_test_loggrp.attr_arn}}"
+        # format: ""
+      description: "api test stage"
+      deployment_id: "{{apigwlambda.apideployments.api_test_deployment.attr_deployment_id}}"
+      stage_name: "test"
+      tags:
+        - key: "Vertion"
+          value: "1.0.0"

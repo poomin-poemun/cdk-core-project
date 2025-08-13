@@ -4,6 +4,7 @@ from aws_cdk.aws_ec2 import (
     CfnInternetGateway,
     CfnRoute,
     CfnRouteTable,
+    CfnSecurityGroup,
     CfnSubnet,
     CfnSubnetRouteTableAssociation,
     CfnVPC,
@@ -21,7 +22,6 @@ class MyVpc(MyBase):
         super().__init__(obj, name)
 
     def create(self, myif: dict) -> Any:
-        # もしmyifの内容を補正する必要があるならここで！
         return super().create(myif)
 
     def _rsc_(self, rscif: dict, myif: dict) -> CfnVPC:
@@ -39,7 +39,6 @@ class MySubnet(MyBase):
         super().__init__(obj, name)
 
     def create(self, myif: dict) -> Any:
-        # もしmyifの内容を補正する必要があるならここで！
         return super().create(myif)
 
     def _rsc_(self, rscif: dict, myif: dict) -> CfnSubnet:
@@ -57,7 +56,6 @@ class MyRoute(MyBase):
         super().__init__(obj, name)
 
     def create(self, myif: dict) -> Any:
-        # もしmyifの内容を補正する必要があるならここで！
         return super().create(myif)
 
     def _rsc_(self, rscif: dict, myif: dict) -> CfnRoute:
@@ -75,7 +73,6 @@ class MyInternetGateway(MyBase):
         super().__init__(obj, name)
 
     def create(self, myif: dict) -> Any:
-        # もしmyifの内容を補正する必要があるならここで！
         return super().create(myif)
 
     def _rsc_(self, rscif: dict, myif: dict) -> CfnInternetGateway:
@@ -93,7 +90,6 @@ class MyRouteTable(MyBase):
         super().__init__(obj, name)
 
     def create(self, myif: dict) -> Any:
-        # もしmyifの内容を補正する必要があるならここで！
         return super().create(myif)
 
     def _rsc_(self, rscif: dict, myif: dict) -> CfnRouteTable:
@@ -111,7 +107,6 @@ class MySubnetRouteTableAssociation(MyBase):
         super().__init__(obj, name)
 
     def create(self, myif: dict) -> Any:
-        # もしmyifの内容を補正する必要があるならここで！
         return super().create(myif)
 
     def _rsc_(self, rscif: dict, myif: dict) -> CfnSubnetRouteTableAssociation:
@@ -127,9 +122,34 @@ class MyVPCGatewayAttachment(MyBase):
         super().__init__(obj, name)
 
     def create(self, myif: dict) -> Any:
-        # もしmyifの内容を補正する必要があるならここで！
         return super().create(myif)
 
     def _rsc_(self, rscif: dict, myif: dict) -> CfnVPCGatewayAttachment:
         rsc = CfnVPCGatewayAttachment(**rscif)
+        return rsc
+
+# ==============================
+# CfnSecurityGroup
+# ==============================
+class MySecurityGroup(MyBase):
+    def __init__(self, obj: Any, name: str):
+        super().__init__(obj, name)
+
+    def create(self, myif: dict) -> Any:
+        return super().create(myif)
+
+    def _rsc_(self, rscif: dict, myif: dict) -> CfnSecurityGroup:
+        if "security_group_egress" in rscif:
+            egress:list =[]
+            for onegress in rscif["security_group_egress"]:
+                egress.append(CfnSecurityGroup.EgressProperty(**onegress))
+            rscif["security_group_egress"]=egress
+        if "security_group_ingress" in rscif:
+            ingress:list =[]
+            for oneingress in rscif["security_group_ingress"]:
+                ingress.append(CfnSecurityGroup.IngressProperty(**oneingress))
+            rscif["security_group_ingress"]=ingress
+        rsc = CfnSecurityGroup(**rscif)
+        # attr_group_id
+        myif["attr_group_id"] = rsc.attr_group_id
         return rsc

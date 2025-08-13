@@ -1,39 +1,37 @@
 from typing import Any
 
-from aws_cdk.aws_lambda import CfnFunction, CfnPermission
+from aws_cdk.aws_logs import CfnLogGroup, CfnLogStream
 from constructs import Construct
 
 from core.myconstructs.mybase import MyBase
 
 
 # ==============================
-# CfnFunction
+# CfnLogGroup
 # ==============================
-class MyFunction(MyBase):
+class MyLogGroup(MyBase):
     def __init__(self, obj: Any, name: str):
         super().__init__(obj, name)
 
     def create(self, myif: dict) -> Any:
         return super().create(myif)
 
-    def _rsc_(self, rscif: dict, myif: dict) -> CfnFunction:
-        if "vpc_config" in rscif:
-          rscif["vpc_config"] = CfnFunction.VpcConfigProperty(**rscif["vpc_config"])
-        if "code" in rscif:
-          rscif["code"] = CfnFunction.CodeProperty(**rscif["code"])
-        rsc = CfnFunction(**rscif)
+    def _rsc_(self, rscif: dict, myif: dict) -> CfnLogGroup:
+        rsc = CfnLogGroup(**rscif)
+        # attr_arn
+        myif["attr_arn"] = rsc.attr_arn
         return rsc
 
 # ==============================
-# CfnPermission
+# CfnLogStream
 # ==============================
-class MyPermission(MyBase):
+class MyLogStream(MyBase):
     def __init__(self, obj: Any, name: str):
         super().__init__(obj, name)
 
     def create(self, myif: dict) -> Any:
         return super().create(myif)
 
-    def _rsc_(self, rscif: dict, myif: dict) -> CfnPermission:
-        rsc = CfnPermission(**rscif)
+    def _rsc_(self, rscif: dict, myif: dict) -> CfnLogStream:
+        rsc = CfnLogStream(**rscif)
         return rsc
