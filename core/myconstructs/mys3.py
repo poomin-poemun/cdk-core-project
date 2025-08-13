@@ -14,7 +14,6 @@ class MyBucket(MyBase):
         super().__init__(obj, name)
 
     def create(self, myif: dict) -> Any:
-        # もしmyifの内容を補正する必要があるならここで！
         return super().create(myif)
 
     def _rsc_(self, rscif: dict, myif: dict) -> CfnBucket:
@@ -29,7 +28,6 @@ class MyBucketPolicy(MyBase):
         super().__init__(obj, name)
 
     def create(self, myif: dict) -> Any:
-        # もしmyifの内容を補正する必要があるならここで！
         return super().create(myif)
 
     def _rsc_(self, rscif: dict, myif: dict) -> CfnBucketPolicy:

@@ -30,7 +30,7 @@ class MyCtrl:
                     tmp = tmp[leaf]
         except KeyError as e:
             print(e)
-            print(f"Error not found key from yaml file check keyword:{leaf}")
+            print(f"Error not found key from yaml file check name:{name} keyword:{leaf}")
             sys.exit("error end.")
         return tmp
 
