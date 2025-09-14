@@ -17,6 +17,11 @@ class MyRole(MyBase):
         return super().create(myif)
 
     def _rsc_(self, rscif: dict, myif: dict) -> CfnRole:
+        if "policies" in rscif:
+            policie_list=[]
+            for policie in rscif["policies"]:
+                policie_list.append(CfnRole.PolicyProperty(**policie))
+            rscif["policies"] = policie_list
         rsc = CfnRole(**rscif)
         # attr_arn
         myif["attr_arn"] = rsc.attr_arn

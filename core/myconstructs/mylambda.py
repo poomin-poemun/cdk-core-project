@@ -2,7 +2,6 @@ from typing import Any
 
 from aws_cdk.aws_lambda import CfnFunction, CfnPermission
 from constructs import Construct
-
 from core.myconstructs.mybase import MyBase
 
 
@@ -22,6 +21,8 @@ class MyFunction(MyBase):
         if "code" in rscif:
           rscif["code"] = CfnFunction.CodeProperty(**rscif["code"])
         rsc = CfnFunction(**rscif)
+        # attr_function_arn
+        myif["attr_arn"] = rsc.attr_arn
         return rsc
 
 # ==============================
