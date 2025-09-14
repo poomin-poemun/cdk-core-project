@@ -7,6 +7,7 @@ from aws_cdk.aws_apigateway import (
     CfnResource,
     CfnRestApi,
     CfnStage,
+    CfnAuthorizer,
 )
 from constructs import Construct
 
@@ -103,4 +104,19 @@ class MyAccount(MyBase):
 
     def _rsc_(self, rscif: dict, myif: dict) -> CfnAccount:
         rsc = CfnAccount(**rscif)
+        return rsc
+
+# ==============================
+# CfnAuthorizer
+# ==============================
+class MyAuthorizer(MyBase):
+    def __init__(self, obj: Any, name: str):
+        super().__init__(obj, name)
+
+    def create(self, myif: dict) -> Any:
+        return super().create(myif)
+
+    def _rsc_(self, rscif: dict, myif: dict) -> CfnAuthorizer:
+        rsc = CfnAuthorizer(**rscif)
+        myif["attr_authorizer_id"] = rsc.attr_authorizer_id
         return rsc

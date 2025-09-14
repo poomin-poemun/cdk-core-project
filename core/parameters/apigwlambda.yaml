@@ -47,6 +47,45 @@ apigwlambda:
         - "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
       #policies: なし
 
+    apigw_test_authorizer:
+      id: "apigw_test_authorizer_role"
+      role_name: "apigw_test_authorizer_role"
+      description: "apigw lambda authorizer role"
+      assume_role_policy_document:
+         "Version": "2012-10-17"
+         "Statement":
+           - "Effect": "Allow"
+             "Action": "sts:AssumeRole"
+             "Principal":
+               "Service":
+                 - "lambda.amazonaws.com"
+                 - "apigateway.amazonaws.com"
+      #managed_policy_arns:なし
+      policies:
+        - policy_name: "apigw_test_authorizer_policy"
+          policy_document:
+            "Version": "2012-10-17"
+            "Statement":
+              - "Effect": "Allow"
+                "Action": "lambda:InvokeFunction"
+                "Resource": "{{apigwlambda.functions.apigw_test_fnc_authorizer.attr_arn}}"
+
+    apigw_test_authorizer_fnc:
+      id: "apigw_test_authorizer_fnc_role"
+      role_name: "apigw_test_authorizer_fnc_role"
+      description: "apigw lambda authorizer function role"
+      assume_role_policy_document:
+         "Version": "2012-10-17"
+         "Statement":
+           - "Effect": "Allow"
+             "Action": "sts:AssumeRole"
+             "Principal":
+               "Service": "lambda.amazonaws.com"
+      managed_policy_arns:
+        - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+        - "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
+      #policies: なし
+
   logs:
     apigw_test_loggrp:
       id: "apigw_test_loggrp"
@@ -90,6 +129,25 @@ apigwlambda:
           from_port: 443
           to_port: 443
           description: "Allow SSH traffic." 
+      vpc_id: "{{pwork.vpcs.pworkvpc.vpc_id}}"
+      tags:
+        - key: "memo"
+          value: "Nothing in particular"
+
+    apigw_test_fnc_aut:
+      id: "apigw_test_fnc_aut_sg"
+      group_description: "apigw_test function aut securitygroup"
+      group_name: "apigw_test_fnc_aut_sg"
+      security_group_egress:
+        - ip_protocol: "-1"
+          cidr_ip: "0.0.0.0/0"
+          description: "Allow all traffic."
+      security_group_ingress:
+        - ip_protocol: "tcp"
+          cidr_ip: "0.0.0.0/0"
+          from_port: 443
+          to_port: 443
+          description: "Allow SSH traffic."
       vpc_id: "{{pwork.vpcs.pworkvpc.vpc_id}}"
       tags:
         - key: "memo"
@@ -152,7 +210,7 @@ apigwlambda:
         subnet_ids:
           - "{{pwork.subnets.pwork_pri_subnet_az1.attr_subnet_id}}"
           - "{{pwork.subnets.pwork_pri_subnet_az3.attr_subnet_id}}"
-      reserved_concurrent_executions: 1  
+      reserved_concurrent_executions: 1
 
     apigw_test_fnc_dog:
       id: "apigw_test_fnc_dog"
@@ -180,7 +238,86 @@ apigwlambda:
         subnet_ids:
           - "{{pwork.subnets.pwork_pri_subnet_az1.attr_subnet_id}}"
           - "{{pwork.subnets.pwork_pri_subnet_az3.attr_subnet_id}}"
-      reserved_concurrent_executions: 1  
+      reserved_concurrent_executions: 1
+
+    apigw_test_fnc_authorizer:
+      id: "apigw_test_fnc_authorizer"
+      function_name: "apigw_test_fnc_authorizer"
+      role: "{{apigwlambda.roles.apigw_test_authorizer_fnc.attr_arn}}"
+      runtime: "python3.11"
+      code:
+        zip_file: |
+          import json
+          def handler(event, context):
+              print("[START]authorizer")
+              print(f"event:{event}")
+              print(f"context:{context}")
+              headers = event.get("headers","")
+              bearer_data = headers.get("Authorization","")
+              bearer_list=bearer_data.split()
+              bearer=bearer_list[0]
+              bearer_key=bearer_list[1]
+              print(f"bearer_data:{bearer_data}")
+              print(f"bearer:{bearer} bearer_key:{bearer_key}")
+              response={}
+              if bearer_key == "testtest":
+                  response={
+                      'principalId': 'abc1234',
+                      'policyDocument':{
+                          'Version': '2012-10-17',
+                          'Statement': [
+                              {
+                                  'Action': 'execute-api:Invoke',
+                                  'Effect': 'Allow',
+                                  'Resource': event['methodArn']
+                              }
+                          ]
+                      },
+                      'context':{
+                          'stringKey': 'catdog',
+                          'numberKey': 123,
+                          'booleanKey': True
+                      }
+                  }
+              else:
+                  response={
+                      'principalId': 'cdf1234',
+                      'policyDocument':{
+                          'Version': '2012-10-17',
+                          'Statement': [
+                              {
+                                  'Action': 'execute-api:Invoke',
+                                  'Effect': 'Deny',
+                                  'Resource': event['methodArn']
+                              }
+                          ]
+                      },
+                      'context':{
+                          'stringKey': 'nonnon',
+                          'numberKey': 567,
+                          'booleanKey': False
+                      }
+                  }
+              return response
+      handler: "index.handler"
+      vpc_config:
+        security_group_ids:
+          - "{{apigwlambda.securitygrps.apigw_test_fnc_aut.attr_group_id}}"
+        subnet_ids:
+          - "{{pwork.subnets.pwork_pri_subnet_az1.attr_subnet_id}}"
+          - "{{pwork.subnets.pwork_pri_subnet_az3.attr_subnet_id}}"
+      reserved_concurrent_executions: 1
+
+  authorizers:
+    apigw_test_authorizer:
+      id: "apigw_test_authorizer"
+      name: "apigw_test_authorizer"
+      rest_api_id: "{{apigwlambda.apigws.apigw_test.attr_rest_api_id}}"
+      type: "REQUEST"
+      authorizer_credentials: "{{apigwlambda.roles.apigw_test_authorizer.attr_arn}}"
+      authorizer_result_ttl_in_seconds: 300
+      authorizer_uri: "arn:aws:apigateway:{{common.region}}:lambda:path/2015-03-31/functions/arn:aws:lambda:{{common.region}}:{{common.account}}:function:{{apigwlambda.functions.apigw_test_fnc_authorizer.function_name}}/invocations"
+      identity_source: "method.request.header.Authorization"
 
   permissions:
     apigw_test_fnc_cat_permssn:
@@ -213,6 +350,11 @@ apigwlambda:
       rest_api_id: "{{apigwlambda.apigws.apigw_test.attr_rest_api_id}}"
       parent_id: "{{apigwlambda.apiresources.api_test_rsc_first.attr_resource_id}}"
       path_part: "cat"
+    api_test_rsc_user_id:
+      id: "api_test_rsc_user_id"
+      rest_api_id: "{{apigwlambda.apigws.apigw_test.attr_rest_api_id}}"
+      parent_id: "{{apigwlambda.apiresources.api_test_rsc_cat.attr_resource_id}}"
+      path_part: "{user_id}"
     api_test_rsc_dog:
       id: "api_test_rsc_dog"
       rest_api_id: "{{apigwlambda.apigws.apigw_test.attr_rest_api_id}}"
@@ -221,14 +363,15 @@ apigwlambda:
 
   apimethods:
     api_test_method_cat:
+      # ここだけoptionパラメータもコメントで残しておきます。
       id: "api_test_method_cat"
       http_method: "POST"
       rest_api_id: "{{apigwlambda.apigws.apigw_test.attr_rest_api_id}}"
       resource_id: "{{apigwlambda.apiresources.api_test_rsc_cat.attr_resource_id}}"
       # api_key_required: false
       # authorization_scopes: ""
-      authorization_type: "NONE"
-      # authorizer_id: ""
+      authorization_type: "CUSTOM"
+      authorizer_id: "{{apigwlambda.authorizers.apigw_test_authorizer.attr_authorizer_id}}"
       integration:
         type: "AWS_PROXY"
         # cache_key_parameters: ""
@@ -250,35 +393,28 @@ apigwlambda:
         # timeout_in_millis: 50 -29000 ms
         uri: "arn:aws:apigateway:{{common.region}}:lambda:path/2015-03-31/functions/arn:aws:lambda:{{common.region}}:{{common.account}}:function:{{apigwlambda.functions.apigw_test_fnc_cat.function_name}}/invocations"
 
+    api_test_method_user_id:
+      id: "api_test_method_user_id"
+      http_method: "POST"
+      rest_api_id: "{{apigwlambda.apigws.apigw_test.attr_rest_api_id}}"
+      resource_id: "{{apigwlambda.apiresources.api_test_rsc_user_id.attr_resource_id}}"
+      authorization_type: "CUSTOM"
+      authorizer_id: "{{apigwlambda.authorizers.apigw_test_authorizer.attr_authorizer_id}}"
+      integration:
+        type: "AWS_PROXY"
+        integration_http_method: "POST"
+        uri: "arn:aws:apigateway:{{common.region}}:lambda:path/2015-03-31/functions/arn:aws:lambda:{{common.region}}:{{common.account}}:function:{{apigwlambda.functions.apigw_test_fnc_cat.function_name}}/invocations"
+
     api_test_method_dog:
       id: "api_test_method_dog"
       http_method: "GET"
       rest_api_id: "{{apigwlambda.apigws.apigw_test.attr_rest_api_id}}"
       resource_id: "{{apigwlambda.apiresources.api_test_rsc_dog.attr_resource_id}}"
-      # api_key_required: false
-      # authorization_scopes: ""
-      authorization_type: "NONE"
-      # authorizer_id: ""
+      authorization_type: "CUSTOM"
+      authorizer_id: "{{apigwlambda.authorizers.apigw_test_authorizer.attr_authorizer_id}}"
       integration:
         type: "AWS_PROXY"
-        # cache_key_parameters: ""
-        # cache_namespace: ""
-        # connection_id: ""
-        # connection_type: "INTERNET" default:INTERNET
-        # content_handling: ""
-        # credentials: ""
-        #http_method: "POST"
         integration_http_method: "POST"
-        # integration_responses:
-          # status_code: ""
-          # content_handling: ""
-          # response_parameters: ""
-          # response_templates: ""
-          # selection_pattern: ""
-        # passthrough_behavior: ""
-        # request_parameters: ""
-        # request_templates: ""
-        # timeout_in_millis: 50 -29000 ms
         uri: "arn:aws:apigateway:{{common.region}}:lambda:path/2015-03-31/functions/arn:aws:lambda:{{common.region}}:{{common.account}}:function:{{apigwlambda.functions.apigw_test_fnc_dog.function_name}}/invocations"
 
   apideployments:
