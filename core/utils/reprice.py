@@ -60,4 +60,6 @@ def getvalue(matchdict: dict, target: str):
             else:
                 flg = False
                 break
+    if tmp is None:
+        flg = False
     return flg, tmp

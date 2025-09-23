@@ -1,13 +1,14 @@
 from aws_cdk import RemovalPolicy, Stack
 from constructs import Construct
+
 from core.myconstructs.myapigateway import (
     MyAccount,
+    MyAuthorizer,
     MyDeployment,
     MyMethod,
     MyResource,
     MyRestApi,
     MyStage,
-    MyAuthorizer,
 )
 from core.myconstructs.myctrl import MyCtrl
 from core.myconstructs.myec2 import MySecurityGroup
@@ -16,7 +17,7 @@ from core.myconstructs.mylambda import MyFunction, MyPermission
 from core.myconstructs.mylogs import MyLogGroup
 
 
-class ApigwLambdaStack(Stack):
+class ApigwLambdaStack3(Stack):
     def __init__(
         self, scope: Construct, construct_id: str, myctrl: MyCtrl, **kwargs
     ) -> None:

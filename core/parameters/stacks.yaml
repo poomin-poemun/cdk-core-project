@@ -2,4 +2,6 @@
 common: "common.yaml"
 stacks:
   - "pwork_vpc.yaml"
-  - "apigwlambda.yaml"
+  - "apigwlambda3.yaml"
+  - "certificate.yaml"
+  - "domain.yaml"
