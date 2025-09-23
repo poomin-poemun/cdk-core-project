@@ -1,0 +1,19 @@
+---
+certificate:
+  certificates:
+    pworks:
+      id: "pwork_certificate"
+      domain_name: "{{common.mydomain}}"
+      #certificate_authority_arn: "" #プライベートの時に使用
+      #certificate_export: "DISABLED"
+      certificate_transparency_logging_preference: "DISABLED"
+      domain_validation_options:
+        - domain_name: "{{common.mydomain}}"
+          hosted_zone_id: "{{common.hosted_zone_id}}"
+        #validation_domainはメールのとき
+      key_algorithm: "RSA_2048"
+      #subject_alternative_names: ""
+      tags:
+        - key: "memo"
+          value: "Nothing in particular"
+      validation_method: "DNS"

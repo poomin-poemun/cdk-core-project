@@ -2,12 +2,12 @@ from typing import Any
 
 from aws_cdk.aws_apigateway import (
     CfnAccount,
+    CfnAuthorizer,
     CfnDeployment,
     CfnMethod,
     CfnResource,
     CfnRestApi,
     CfnStage,
-    CfnAuthorizer,
 )
 from constructs import Construct
 
