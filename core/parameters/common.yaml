@@ -4,5 +4,6 @@ common:
   account: "123456789099"
   mydomain: "poeny.******.click"
   hosted_zone_id: "Z*******************P"
+  key_pair: "XXXXXXXX"
   tags :
-    system: "apigwlambda3"
+    system: "PWork"

@@ -1,0 +1,98 @@
+---
+pwork:
+  vpcs:
+    nyan_vpc:
+      id: "nyan-vpc"
+      cidr_block: "10.1.0.0/16"
+      enable_dns_hostnames: True
+      enable_dns_support: True
+      instance_tenancy: "default"
+      tags:
+        - key: "Name"
+          value: "nyan-vpc"
+
+  subnets:
+    nyan_pub_subnet_az1:
+      id: "nyan-pub-subnet-az1"
+      vpc_id: "{{pwork.vpcs.nyan_vpc.vpc_id}}"
+      availability_zone: "ap-northeast-1a"
+      cidr_block: "10.1.0.0/24"
+      tags:
+        - key: "Name"
+          value: "nyan-pub-subnet-az1"
+    nyan_pub_subnet_az3:
+      id: "nyan-pub-subnet-az3"
+      vpc_id: "{{pwork.vpcs.nyan_vpc.vpc_id}}"
+      availability_zone: "ap-northeast-1c"
+      cidr_block: "10.1.1.0/24"
+      tags:
+        - key: "Name"
+          value: "nyan-pub-subnet-az3"
+    nyan_pri_subnet_az1:
+      id: "nyan-pri-subnet-az1"
+      vpc_id: "{{pwork.vpcs.nyan_vpc.vpc_id}}"
+      availability_zone: "ap-northeast-1a"
+      cidr_block: "10.1.2.0/24"
+      tags:
+        - key: "Name"
+          value: "nyan-pri-subnet-az1"
+    nyan_pri_subnet_az3:
+      id: "nyan-pri-subnet-az3"
+      vpc_id: "{{pwork.vpcs.nyan_vpc.vpc_id}}"
+      availability_zone: "ap-northeast-1c"
+      cidr_block: "10.1.3.0/24"
+      tags:
+        - key: "Name"
+          value: "nyan-pri-subnet-az3"
+    
+  route_tables:
+    nyan_pub_routetbl:
+      id: "nyan-pub-routetbl"
+      vpc_id: "{{pwork.vpcs.nyan_vpc.vpc_id}}"
+      tags:
+        - key: "Name"
+          value: "nyan-pub-routetbl"
+    nyan_pri_routetbl:
+      id: "nyan-pri-routetbl"
+      vpc_id: "{{pwork.vpcs.nyan_vpc.vpc_id}}"
+      tags:
+        - key: "Name"
+          value: "nyan-pri-routetbl"
+
+  igws:
+    nyan_igw:
+      id: "nyan-igw"
+      tags:
+        - key: "Name"
+          value : "nyan-vpc-igw"
+
+  routes:
+    nyan_igw_rute:
+      id: "nyan-igw-rute"
+      route_table_id: "{{pwork.route_tables.nyan_pub_routetbl.attr_route_table_id}}"
+      gateway_id: "{{pwork.igws.nyan_igw.attr_internet_gateway_id}}"
+      destination_cidr_block: "0.0.0.0/0"
+
+  vpcgatewayattachs:
+    nyan_vpcgatewayattach:
+      id: "nyan-vpcgatewayattach"
+      vpc_id: "{{pwork.vpcs.nyan_vpc.vpc_id}}"
+      internet_gateway_id: "{{pwork.routes.nyan_igw_rute.gateway_id}}"
+
+  subnet_routes:
+    nyan_pub_subnet_route_az1:
+      id: "nyan-pub-subnet-route-az1"
+      route_table_id: "{{pwork.route_tables.nyan_pub_routetbl.attr_route_table_id}}"
+      subnet_id: "{{pwork.subnets.nyan_pub_subnet_az1.attr_subnet_id}}"
+    nyan_pub_subnet_route_az3:
+      id: "nyan-pub-subnet-route-az3"
+      route_table_id: "{{pwork.route_tables.nyan_pub_routetbl.attr_route_table_id}}"
+      subnet_id: "{{pwork.subnets.nyan_pub_subnet_az3.attr_subnet_id}}"
+    nyan_pri_subnet_route_az1:
+      id: "nyan-pri-subnet-route-az1"
+      route_table_id: "{{pwork.route_tables.nyan_pri_routetbl.attr_route_table_id}}"
+      subnet_id: "{{pwork.subnets.nyan_pri_subnet_az1.attr_subnet_id}}"
+    nyan_pri_subnet_route_az3:
+      id: "nyan-pri-subnet-route-az3"
+      route_table_id: "{{pwork.route_tables.nyan_pri_routetbl.attr_route_table_id}}"
+      subnet_id: "{{pwork.subnets.nyan_pri_subnet_az3.attr_subnet_id}}"

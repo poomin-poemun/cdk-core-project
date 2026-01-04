@@ -1,3 +1,4 @@
+import copy
 from typing import Any
 
 from aws_cdk.aws_route53 import CfnRecordSet
@@ -17,21 +18,22 @@ class MyRecordSet(MyBase):
         return super().create(myif)
 
     def _rsc_(self, rscif: dict, myif: dict) -> CfnRecordSet:
-        if "alias_target" in rscif:
-            alias_target = CfnRecordSet.AliasTargetProperty(**rscif["alias_target"])
-            rscif["alias_target"] = alias_target
-        if "cidr_routing_config" in rscif:
+        tmp_rscif: dict = copy.deepcopy(rscif)
+        if "alias_target" in tmp_rscif:
+            alias_target = CfnRecordSet.AliasTargetProperty(**tmp_rscif["alias_target"])
+            tmp_rscif["alias_target"] = alias_target
+        if "cidr_routing_config" in tmp_rscif:
             cidr_routing_config = CfnRecordSet.CidrRoutingConfigProperty(
-                **rscif["cidr_routing_config"]
+                **tmp_rscif["cidr_routing_config"]
             )
-            rscif["cidr_routing_config"] = cidr_routing_config
-        if "geo_location" in rscif:
-            geo_location = CfnRecordSet.GeoLocationProperty(**rscif["geo_location"])
-            rscif["geo_location"] = geo_location
-        if "geo_proximity_location" in rscif:
+            tmp_rscif["cidr_routing_config"] = cidr_routing_config
+        if "geo_location" in tmp_rscif:
+            geo_location = CfnRecordSet.GeoLocationProperty(**tmp_rscif["geo_location"])
+            tmp_rscif["geo_location"] = geo_location
+        if "geo_proximity_location" in tmp_rscif:
             geo_proximity_location = CfnRecordSet.GeoProximityLocationProperty(
-                **rscif["geo_proximity_location"]
+                **tmp_rscif["geo_proximity_location"]
             )
-            rscif["geo_proximity_location"] = geo_proximity_location
-        rsc = CfnRecordSet(**rscif)
+            tmp_rscif["geo_proximity_location"] = geo_proximity_location
+        rsc = CfnRecordSet(**tmp_rscif)
         return rsc

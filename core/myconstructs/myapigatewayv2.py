@@ -1,3 +1,4 @@
+import copy
 from typing import Any
 
 from aws_cdk.aws_apigatewayv2 import CfnDomainName, CfnRoutingRule
@@ -17,14 +18,15 @@ class MyDomainName(MyBase):
         return super().create(myif)
 
     def _rsc_(self, rscif: dict, myif: dict) -> CfnDomainName:
-        if "domain_name_configurations" in rscif:
+        tmp_rscif: dict = copy.deepcopy(rscif)
+        if "domain_name_configurations" in tmp_rscif:
             configurations_list = []
-            for configuration in rscif["domain_name_configurations"]:
+            for configuration in tmp_rscif["domain_name_configurations"]:
                 configurations_list.append(
                     CfnDomainName.DomainNameConfigurationProperty(**configuration)
                 )
-            rscif["domain_name_configurations"] = configurations_list
-        rsc = CfnDomainName(**rscif)
+            tmp_rscif["domain_name_configurations"] = configurations_list
+        rsc = CfnDomainName(**tmp_rscif)
         myif["domain_name"] = rsc.domain_name
         myif["attr_domain_name_arn"] = rsc.attr_domain_name_arn
         myif["attr_regional_domain_name"] = rsc.attr_regional_domain_name
@@ -43,20 +45,21 @@ class MyRoutingRule(MyBase):
         return super().create(myif)
 
     def _rsc_(self, rscif: dict, myif: dict) -> CfnRoutingRule:
+        tmp_rscif: dict = copy.deepcopy(rscif)
         action_list: list = []
         condition_list: list = []
-        if "actions" in rscif:
-            for action in rscif["actions"]:
+        if "actions" in tmp_rscif:
+            for action in tmp_rscif["actions"]:
                 invoke_api = CfnRoutingRule.ActionProperty(
                     invoke_api=CfnRoutingRule.ActionInvokeApiProperty(
                         **action["invoke_api"]
                     )
                 )
                 action_list.append(invoke_api)
-        rscif["actions"] = action_list
-        if "conditions" in rscif:
-            for condition in rscif["conditions"]:
+        tmp_rscif["actions"] = action_list
+        if "conditions" in tmp_rscif:
+            for condition in tmp_rscif["conditions"]:
                 condition_list.append(CfnRoutingRule.ConditionProperty(**condition))
-        rscif["conditions"] = condition_list
-        rsc = CfnRoutingRule(**rscif)
+        tmp_rscif["conditions"] = condition_list
+        rsc = CfnRoutingRule(**tmp_rscif)
         return rsc
