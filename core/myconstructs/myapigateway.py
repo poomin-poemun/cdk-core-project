@@ -1,3 +1,4 @@
+import copy
 from typing import Any
 
 from aws_cdk.aws_apigateway import (
@@ -30,6 +31,7 @@ class MyRestApi(MyBase):
         myif["attr_root_resource_id"] = rsc.attr_root_resource_id
         return rsc
 
+
 # ==============================
 # CfnResource
 # ==============================
@@ -44,6 +46,7 @@ class MyResource(MyBase):
         rsc = CfnResource(**rscif)
         myif["attr_resource_id"] = rsc.attr_resource_id
         return rsc
+
 
 # ==============================
 # CfnDeployment
@@ -60,6 +63,7 @@ class MyDeployment(MyBase):
         myif["attr_deployment_id"] = rsc.attr_deployment_id
         return rsc
 
+
 # ==============================
 # CfnStage
 # ==============================
@@ -75,6 +79,7 @@ class MyStage(MyBase):
         rsc = CfnStage(**rscif)
         return rsc
 
+
 # ==============================
 # CfnMethod
 # ==============================
@@ -86,11 +91,14 @@ class MyMethod(MyBase):
         return super().create(myif)
 
     def _rsc_(self, rscif: dict, myif: dict) -> CfnMethod:
-        if "integration" in rscif:
-            rscif["integration"]=CfnMethod.IntegrationProperty(**rscif["integration"])
-        rsc = CfnMethod(**rscif)
-        #rsc.integration=CfnMethod.IntegrationProperty(**rscif["integration"])
+        tmp_rscif: dict = copy.deepcopy(rscif)
+        if "integration" in tmp_rscif:
+            tmp_rscif["integration"] = CfnMethod.IntegrationProperty(
+                **tmp_rscif["integration"]
+            )
+        rsc = CfnMethod(**tmp_rscif)
         return rsc
+
 
 # ==============================
 # CfnAccount
@@ -105,6 +113,7 @@ class MyAccount(MyBase):
     def _rsc_(self, rscif: dict, myif: dict) -> CfnAccount:
         rsc = CfnAccount(**rscif)
         return rsc
+
 
 # ==============================
 # CfnAuthorizer

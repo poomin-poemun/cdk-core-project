@@ -1,3 +1,4 @@
+import copy
 from typing import Any
 
 from aws_cdk.aws_certificatemanager import CfnCertificate
@@ -17,14 +18,15 @@ class MyCertificate(MyBase):
         return super().create(myif)
 
     def _rsc_(self, rscif: dict, myif: dict) -> CfnCertificate:
-        if "domain_validation_options" in rscif:
+        tmp_rscif: dict = copy.deepcopy(rscif)
+        if "domain_validation_options" in tmp_rscif:
             option_list = []
-            for option in rscif["domain_validation_options"]:
+            for option in tmp_rscif["domain_validation_options"]:
                 option_list.append(
                     CfnCertificate.DomainValidationOptionProperty(**option)
                 )
-            rscif["domain_validation_options"] = option_list
-        rsc = CfnCertificate(**rscif)
+            tmp_rscif["domain_validation_options"] = option_list
+        rsc = CfnCertificate(**tmp_rscif)
         myif["certificate_authority_arn"] = rsc.certificate_authority_arn
         myif["ref"] = rsc.ref
         return rsc

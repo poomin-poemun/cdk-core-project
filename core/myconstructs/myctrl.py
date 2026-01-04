@@ -30,11 +30,13 @@ class MyCtrl:
                     tmp = tmp[leaf]
         except KeyError as e:
             print(e)
-            print(f"Error not found key from yaml file check name:{name} keyword:{leaf}")
+            print(
+                f"Error not found key from yaml file check name:{name} keyword:{leaf}"
+            )
             sys.exit("error end.")
         return tmp
 
     def add_common_tags(self, stack: Stack):
         if self.common.tags is not None:
-            for key,value in self.common.tags.items():
-                Tags.of(stack).add(key=key,value=value)
+            for key, value in self.common.tags.items():
+                Tags.of(stack).add(key=key, value=value)
