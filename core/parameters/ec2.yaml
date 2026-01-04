@@ -46,9 +46,6 @@ PWorkInstance:
                "Service": "ec2.amazonaws.com"
       managed_policy_arns:
         - "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role"
-      #  - "arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM"
-      #  - "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
-      # policies:
 
   instanceprofiles:
     pwork_instance_prof:
@@ -80,11 +77,6 @@ PWorkInstance:
           group_set:
             - "{{PWorkInstance.securitygrps.pwork_instance_sg.attr_group_id}}"
           subnet_id: "{{pwork.subnets.nyan_pub_subnet_az1.attr_subnet_id}}"
-      #security_group_ids:
-      #  - "{{PWorkInstance.securitygrps.pwork_instance_sg.attr_group_id}}"
-      #subnet_id: "subnet-0ba5efdb566700895"
-      #subnet_id: "{{pwork.subnets.nyan_pub_subnet_az1.attr_subnet_id}}"
-      #user_data: ""
       tags:
         - key: "module"
           value: "PworkInstance"
