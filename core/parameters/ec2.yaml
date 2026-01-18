@@ -44,8 +44,6 @@ PWorkInstance:
              "Action": "sts:AssumeRole"
              "Principal":
                "Service": "ec2.amazonaws.com"
-      managed_policy_arns:
-        - "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role"
 
   instanceprofiles:
     pwork_instance_prof:
