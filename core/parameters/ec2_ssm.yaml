@@ -30,7 +30,6 @@ PWorkInstSSM:
                "Service": "ec2.amazonaws.com"
       managed_policy_arns:
         - "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
-      # policies:
 
   instanceprofiles:
     pwork_instance_ssm_prof:
@@ -57,7 +56,6 @@ PWorkInstSSM:
       security_group_ids:
         - "{{PWorkInstSSM.securitygrps.pwork_instance_ssm_sg.attr_group_id}}"
       subnet_id: "{{pwork.subnets.pwork_pri_subnet_az1.attr_subnet_id}}"
-      #user_data: ""
       tags:
         - key: "module"
           value: "PWorkInstSSM"
