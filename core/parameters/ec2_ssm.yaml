@@ -1,0 +1,65 @@
+---
+PWorkInstSSM:
+  securitygrps:
+    pwork_instance_ssm_sg:
+      id: "pwork_instance_ssm_sg"
+      group_description: "PWork Instance SSM OutPut SecurityGroup"
+      group_name: "pwork_instance_ssm_sg"
+      security_group_egress:
+        - ip_protocol: "tcp"
+          destination_security_group_id: "{{PWorkSSMEndpoint.securitygrps.pwork_endpoint_sg.attr_group_id}}"
+          from_port: 443
+          to_port: 443
+          description: "Allow all traffic."
+      vpc_id: "{{pwork.vpcs.pworkvpc.vpc_id}}"
+      tags:
+        - key: "module"
+          value: "PWorkInstSSM"
+
+  roles:
+    pwork_instance_ssm_role:
+      id: "pwork_instance_ssm_role"
+      role_name: "pwork_instance_ssm_role"
+      description: "PWork Instance SSM Role"
+      assume_role_policy_document:
+         "Version": "2012-10-17"
+         "Statement":
+           - "Effect": "Allow"
+             "Action": "sts:AssumeRole"
+             "Principal":
+               "Service": "ec2.amazonaws.com"
+      managed_policy_arns:
+        - "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+      # policies:
+
+  instanceprofiles:
+    pwork_instance_ssm_prof:
+      id: "pwork_instance_ssm_prof"
+      roles:
+        - "{{PWorkInstSSM.roles.pwork_instance_ssm_role.ref}}"
+      instance_profile_name: "pwork_instance_ssm_prof"
+
+  instances:
+    pwork_instance_ssm:
+      id: "pwork_instance_ssm"
+      availability_zone: "ap-northeast-1a"
+      block_device_mappings:
+        - device_name: "/dev/xvda"
+          ebs:
+            delete_on_termination: true
+            encrypted: false
+            iops: 3000
+            volume_size: 8
+            volume_type: "gp3"
+      iam_instance_profile: "{{PWorkInstSSM.instanceprofiles.pwork_instance_ssm_prof.ref}}"
+      image_id: "ami-09cd9fdbf26acc6b4"
+      instance_type: "t2.micro"
+      security_group_ids:
+        - "{{PWorkInstSSM.securitygrps.pwork_instance_ssm_sg.attr_group_id}}"
+      subnet_id: "{{pwork.subnets.pwork_pri_subnet_az1.attr_subnet_id}}"
+      #user_data: ""
+      tags:
+        - key: "module"
+          value: "PWorkInstSSM"
+        - key: "Name"
+          value: "PWorkInstSSM"

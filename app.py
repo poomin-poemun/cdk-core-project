@@ -3,20 +3,23 @@ import os
 
 from aws_cdk import App, Environment
 
-from core.ec2_stack import Ec2Stack
+# from core.ec2_stack import Ec2Stack
+from core.ec2_ssm_stack import Ec2SsmStack
 from core.myconstructs.myctrl import MyCtrl
+from core.pwork_vpc_endpoint_stack import PworkVpcEndpointStack
+
+# from core.first_vpc_stack import FirstVpcStack
+# from core.s3event_stack import S3EventStack
+from core.pwork_vpc_stack import PworkVpcStack
+from core.utils.configread import configread, configread2
 
 # from core.apigw_lambda_stack import ApigwLambdaStack
 # from core.apigw_lambda_stack2 import ApigwLambdaStack2
 # from core.apigw_lambda_stack3 import ApigwLambdaStack3
 # from core.certificate_stack import CertificateStack
 # from core.domain_stack import DomainStack
-from core.nyan_vpc_stack import NyanVpcStack
+# from core.nyan_vpc_stack import NyanVpcStack
 
-# from core.first_vpc_stack import FirstVpcStack
-# from core.s3event_stack import S3EventStack
-from core.pwork_vpc_stack import PworkVpcStack
-from core.utils.configread import configread, configread2
 
 app = App()
 # myctrl = MyCtrl(config=configread("core/parameters/first_vpc_params.yaml"))
@@ -25,7 +28,7 @@ myctrl = MyCtrl(config=configread2("core/parameters", "stacks.yaml"))
 env = Environment(region=myctrl.common.region, account=myctrl.common.account)
 # FirstVpcStack(app, "FirstVpcStack", myctrl=myctrl, env=env)
 # S3EventStack(app, "S3EventStack", myctrl=myctrl, env=env)
-# pworkvpcstack = PworkVpcStack(app, "PworkVpcStack", myctrl=myctrl, env=env)
+pworkvpcstack = PworkVpcStack(app, "PworkVpcStack", myctrl=myctrl, env=env)
 # apigwlambdastack=ApigwLambdaStack(app, "ApigwLambdaStack", myctrl=myctrl, env=env)
 # apigwlambdastack.add_dependency(pworkvpcstack)
 # apigwlambdastack2=ApigwLambdaStack2(app, "ApigwLambdaStack2", myctrl=myctrl, env=env)
@@ -36,8 +39,14 @@ env = Environment(region=myctrl.common.region, account=myctrl.common.account)
 # apigwlambdastack3.add_dependency(pworkvpcstack)
 # certificatestack.add_dependency(apigwlambdastack3)
 # domainstack.add_dependency(certificatestack)
-nyanvpcstack = NyanVpcStack(app, "NyanVpcStack", myctrl=myctrl, env=env)
-ec2stack = Ec2Stack(app, "Ec2Stack", myctrl=myctrl, env=env)
-ec2stack.add_dependency(nyanvpcstack)
+# nyanvpcstack = NyanVpcStack(app, "NyanVpcStack", myctrl=myctrl, env=env)
+# ec2stack = Ec2Stack(app, "Ec2Stack", myctrl=myctrl, env=env)
+# ec2stack.add_dependency(nyanvpcstack)
+vpcendpointstack = PworkVpcEndpointStack(
+    app, "PworkVpcEndpointStack", myctrl=myctrl, env=env
+)
+vpcendpointstack.add_dependency(pworkvpcstack)
+ec2ssmstack = Ec2SsmStack(app, "Ec2SsmStack", myctrl=myctrl, env=env)
+ec2ssmstack.add_dependency(vpcendpointstack)
 
 app.synth()

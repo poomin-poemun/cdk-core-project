@@ -10,6 +10,7 @@ from aws_cdk.aws_ec2 import (
     CfnSubnet,
     CfnSubnetRouteTableAssociation,
     CfnVPC,
+    CfnVPCEndpoint,
     CfnVPCGatewayAttachment,
 )
 
@@ -188,4 +189,19 @@ class MyInstance(MyBase):
                 )
             tmp_rscif["network_interfaces"] = network_interface_list
         rsc = CfnInstance(**tmp_rscif)
+        return rsc
+
+
+# ==============================
+# CfnVPCEndpoint
+# ==============================
+class MyVPCEndpoint(MyBase):
+    def __init__(self, obj: Any, name: str):
+        super().__init__(obj, name)
+
+    def create(self, myif: dict) -> Any:
+        return super().create(myif)
+
+    def _rsc_(self, rscif: dict, myif: dict) -> CfnVPCEndpoint:
+        rsc = CfnVPCEndpoint(**rscif)
         return rsc
