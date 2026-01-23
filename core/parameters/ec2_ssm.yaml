@@ -1,24 +1,26 @@
 ---
-PWorkInstance:
+PWorkInstSSM:
   securitygrps:
-    pwork_instance_sg:
-      id: "pwork_instance_sg"
-      group_description: "PWork Instance OutPut SecurityGroup"
-      group_name: "pwork_instance_sg"
+    pwork_instance_ssm_sg:
+      id: "pwork_instance_ssm_sg"
+      group_description: "PWork Instance SSM OutPut SecurityGroup"
+      group_name: "pwork_instance_ssm_sg"
       security_group_egress:
-        - ip_protocol: "-1"
-          cidr_ip: "0.0.0.0/0"
+        - ip_protocol: "tcp"
+          destination_security_group_id: "{{PWorkSSMEndpoint.securitygrps.pwork_endpoint_sg.attr_group_id}}"
+          from_port: 443
+          to_port: 443
           description: "Allow all traffic."
-      vpc_id: "{{pwork.vpcs.nyan_vpc.vpc_id}}"
+      vpc_id: "{{pwork.vpcs.pworkvpc.vpc_id}}"
       tags:
         - key: "module"
-          value: "PworkInstance"
+          value: "PWorkInstSSM"
 
   roles:
-    pwork_instance_role:
-      id: "pwork_instance_role"
-      role_name: "pwork_instance_role"
-      description: "PWork Instance Role"
+    pwork_instance_ssm_role:
+      id: "pwork_instance_ssm_role"
+      role_name: "pwork_instance_ssm_role"
+      description: "PWork Instance SSM Role"
       assume_role_policy_document:
          "Version": "2012-10-17"
          "Statement":
@@ -27,21 +29,19 @@ PWorkInstance:
              "Principal":
                "Service": "ec2.amazonaws.com"
       managed_policy_arns:
-        - "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role"
-      #  - "arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM"
-      #  - "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+        - "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
       # policies:
 
   instanceprofiles:
-    pwork_instance_prof:
-      id: "pwork_instance_prof"
+    pwork_instance_ssm_prof:
+      id: "pwork_instance_ssm_prof"
       roles:
-        - "{{PWorkInstance.roles.pwork_instance_role.ref}}"
-      instance_profile_name: "pwork_instance_prof"
+        - "{{PWorkInstSSM.roles.pwork_instance_ssm_role.ref}}"
+      instance_profile_name: "pwork_instance_ssm_prof"
 
   instances:
-    pwork_instance:
-      id: "pwork_instance"
+    pwork_instance_ssm:
+      id: "pwork_instance_ssm"
       availability_zone: "ap-northeast-1a"
       block_device_mappings:
         - device_name: "/dev/xvda"
@@ -51,24 +51,15 @@ PWorkInstance:
             iops: 3000
             volume_size: 8
             volume_type: "gp3"
-      iam_instance_profile: "{{PWorkInstance.instanceprofiles.pwork_instance_prof.ref}}"
+      iam_instance_profile: "{{PWorkInstSSM.instanceprofiles.pwork_instance_ssm_prof.ref}}"
       image_id: "ami-09cd9fdbf26acc6b4"
       instance_type: "t2.micro"
-      key_name: "{{common.key_pair}}"
-      network_interfaces:
-        - device_index: "0"
-          delete_on_termination: true
-          associate_public_ip_address: true
-          group_set:
-            - "{{PWorkInstance.securitygrps.pwork_instance_sg.attr_group_id}}"
-          subnet_id: "{{pwork.subnets.nyan_pub_subnet_az1.attr_subnet_id}}"
-      #security_group_ids:
-      #  - "{{PWorkInstance.securitygrps.pwork_instance_sg.attr_group_id}}"
-      #subnet_id: "subnet-0ba5efdb566700895"
-      #subnet_id: "{{pwork.subnets.nyan_pub_subnet_az1.attr_subnet_id}}"
+      security_group_ids:
+        - "{{PWorkInstSSM.securitygrps.pwork_instance_ssm_sg.attr_group_id}}"
+      subnet_id: "{{pwork.subnets.pwork_pri_subnet_az1.attr_subnet_id}}"
       #user_data: ""
       tags:
         - key: "module"
-          value: "PworkInstance"
+          value: "PWorkInstSSM"
         - key: "Name"
-          value: "PworkInstance"
+          value: "PWorkInstSSM"

@@ -1,0 +1,48 @@
+---
+PWorkSSMEndpoint:
+  securitygrps:
+    pwork_endpoint_sg:
+      id: "pwork_endpoint_sg"
+      group_description: "PWork VPC Endpoint SecurityGroup"
+      group_name: "pwork_endpoint_sg"
+      security_group_ingress:
+        - ip_protocol: "tcp"
+          cidr_ip: "{{pwork.subnets.pwork_pri_subnet_az1.cidr_block}}"
+          from_port: 443
+          to_port: 443
+          description: "Allow HTTPS traffic."
+      vpc_id: "{{pwork.vpcs.pworkvpc.vpc_id}}"
+      tags:
+        - key: "module"
+          value: "PWorkInstSSM"
+
+  vpcendpoints:
+    ssm:
+      id: "pwork_endpoint_ssm"
+      vpc_id: "{{pwork.vpcs.pworkvpc.vpc_id}}"
+      private_dns_enabled: True
+      service_name: "com.amazonaws.{{common.region}}.ssm"
+      security_group_ids:
+        - "{{PWorkSSMEndpoint.securitygrps.pwork_endpoint_sg.attr_group_id}}"
+      subnet_ids:
+        - "{{pwork.subnets.pwork_pri_subnet_az1.attr_subnet_id}}"
+        - "{{pwork.subnets.pwork_pri_subnet_az3.attr_subnet_id}}"
+      vpc_endpoint_type: "Interface"
+      #tags:
+      #  - key: "module"
+      #    value: "PWorkInstSSM"
+
+    ssmmessages:
+      id: "pwork_endpoint_ssmmessages"
+      vpc_id: "{{pwork.vpcs.pworkvpc.vpc_id}}"
+      private_dns_enabled: True
+      service_name: "com.amazonaws.{{common.region}}.ssmmessages"
+      security_group_ids:
+        - "{{PWorkSSMEndpoint.securitygrps.pwork_endpoint_sg.attr_group_id}}"
+      subnet_ids:
+        - "{{pwork.subnets.pwork_pri_subnet_az1.attr_subnet_id}}"
+        - "{{pwork.subnets.pwork_pri_subnet_az3.attr_subnet_id}}"
+      vpc_endpoint_type: "Interface"
+      #tags:
+      #  - key: "module"
+      #    value: "PWorkInstSSM"
