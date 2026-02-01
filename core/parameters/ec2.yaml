@@ -9,18 +9,18 @@ PWorkInstance:
         - ip_protocol: "-1"
           cidr_ip: "0.0.0.0/0"
           description: "Allow all traffic."
-      security_group_ingress:
-        - ip_protocol: "tcp"
-          cidr_ip: "0.0.0.0/0"
-          from_port: 80
-          to_port: 80
-          description: "Allow HTTPS traffic."
-      security_group_ingress:
-        - ip_protocol: "tcp"
-          cidr_ip: "0.0.0.0/0"
-          from_port: 443
-          to_port: 443
-          description: "Allow HTTPS traffic."
+      #security_group_ingress:
+      #  - ip_protocol: "tcp"
+      #    cidr_ip: "0.0.0.0/0"
+      #    from_port: 80
+      #    to_port: 80
+      #    description: "Allow HTTPS traffic."
+      #security_group_ingress:
+      #  - ip_protocol: "tcp"
+      #    cidr_ip: "0.0.0.0/0"
+      #    from_port: 443
+      #    to_port: 443
+      #    description: "Allow HTTPS traffic."
       security_group_ingress:
         - ip_protocol: "tcp"
           cidr_ip: "0.0.0.0/0"
